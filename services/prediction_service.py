@@ -62,6 +62,34 @@ def get_predictions_by_date(date, result_format="text"):
         print(f"An error occurred: {e}")
         return {}
 
+def get_latest_predictions(result_format="text"):
+    try:
+        conn = DatabaseConnection().get_connection()
+        cur = conn.cursor()
+        # Query to select all rows from the latest date available in the table
+        cur.execute("""
+            SELECT dp.market, dp.date, dp.symbol, dp.prediction, dp.confidence
+            FROM daily_predictions dp
+            WHERE dp.date = (SELECT MAX(date) FROM daily_predictions)
+        """)
+
+        rows = cur.fetchall()
+        print(rows)
+
+        if not rows:
+            return "No data available for the most recent date."
+
+        if result_format == "json":
+            return format_data_in_json(rows)
+        elif result_format == "text":
+            return format_data_for_telegram_message(rows)
+        else:
+            return rows
+
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+        return {}
+
 
 def get_predictions_by_symbol_and_date(symbols, start_date, end_date):
     try:

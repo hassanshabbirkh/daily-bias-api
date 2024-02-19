@@ -64,20 +64,7 @@ def read_predictions():
     Raises:
     - HTTPException: If no predictions are found for the determined date.
     """
-    today = datetime.now()
-    weekday = today.weekday()  # Monday is 0 and Sunday is 6
-
-    # If today is Saturday (5) or Sunday (6), adjust to last Friday
-    if weekday == 5:  # Saturday
-        target_date = today - timedelta(days=10)
-    elif weekday == 6:  # Sunday
-        target_date = today - timedelta(days=20)
-    else:
-        target_date = today
-
-    # Ensuring we get the date in the format YYYY-MM-DD
-    date_str = target_date.strftime("%Y-%m-%d")
-    predictions = prediction_service.get_predictions_by_date(date_str, result_format="json")
+    predictions = prediction_service.get_latest_predictions(result_format="json")
 
     if predictions:
         return predictions
